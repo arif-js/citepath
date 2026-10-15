@@ -111,10 +111,16 @@ Without `base_url`, citations are relative paths with line ranges, such as `guid
 | Limit | Value |
 | --- | --- |
 | Results per query | 5 by default, 25 maximum |
-| Passages per document in one response | 2 |
+| Passages per document in one response (all versions of a page count as one document) | 2 |
 | Characters of text per result | 1,500 (`get` returns the full passage) |
 | Response size | 32 KB |
 | Query length | 512 characters |
 | Neighbors returned by `get` | 3 per side |
 
 Responses say when anything was shortened (`truncated`, `query_truncated`).
+
+### Versioned documentation
+
+Sites that keep old versions under a version folder (`/docs/15/…`, `/v2/…`, `/1.4/…`, `/latest/…`) produce near-identical copies of the same section. Search returns one copy of each section and uses the current, unversioned copy when it matches. Pages that exist only in an older version still appear. To search one version, filter with `--path-prefix` (for example `https://nextjs.org/docs/15/`); to leave old versions out of the index entirely, add the source with `--include` or `--exclude` (for example `--include '/docs/app/**'`).
+
+A path segment counts as a version when it looks like `15`, `v2`, `1.4`, `2.x`, `v3.1.0`, `latest`, `stable`, or `current`. Numbers with three or more digits (`404`, `2024`) are not versions.

@@ -47,6 +47,7 @@ interface PassageRow {
   line_end: number | null;
   text: string;
   content_hash: string;
+  occurrence_index: number;
   title: string;
   url: string | null;
   path: string | null;
@@ -57,7 +58,39 @@ interface PassageRow {
 }
 
 const PASSAGE_COLUMNS = `p.id, p.document_id, p.source_id, p.ordinal, p.heading_path_json, p.anchor, p.line_start,
-  p.line_end, p.text, p.content_hash, d.title, d.url, d.path, d.updated_at, d.fetched_at, d.commit_sha`;
+  p.line_end, p.text, p.content_hash, p.occurrence_index, d.title, d.url, d.path, d.updated_at, d.fetched_at, d.commit_sha`;
+
+/**
+ * Path segments that name a documentation version: "15", "v2", "1.4", "2.x", "v3.1.0", and the
+ * aliases "latest", "stable", "current". Two-digit numbers at most, so "404" and "2024" are not
+ * versions.
+ */
+const VERSION_SEGMENT = /^(?:v?\d{1,2}(?:\.(?:\d+|x)){0,2}|v\d+(?:\.\d+)*|latest|stable|current)$/i;
+const CURRENT_ALIASES = new Set(['latest', 'stable', 'current']);
+
+/**
+ * Identifies the same page across documentation versions: "/docs/15/app/x" and "/docs/app/x" share
+ * a key. `versioned` is false for the current copy (no version segment, or "latest"/"stable").
+ */
+export function documentFamily(sourceId: string, location: string): { key: string; versioned: boolean } {
+  let origin = '';
+  let pathname = location;
+  try {
+    const url = new URL(location);
+    origin = url.origin;
+    pathname = url.pathname;
+  } catch {
+    // A local path relative to the source root.
+  }
+  let versioned = false;
+  const segments = pathname.split('/').filter((segment) => {
+    if (!segment) return false;
+    if (!VERSION_SEGMENT.test(segment)) return true;
+    if (!CURRENT_ALIASES.has(segment.toLowerCase())) versioned = true;
+    return false;
+  });
+  return { key: JSON.stringify([sourceId, origin, segments.join('/')]), versioned };
+}
 
 function configuredSources(loaded: LoadedConfig): Map<string, SourceConfig> {
   return new Map(loaded.config.sources.map((s) => [s.id, s]));
@@ -178,18 +211,39 @@ export function search(context: RetrievalContext, params: SearchParams): SearchR
     )
     .all(...args) as unknown as PassageRow[];
 
+  // Copies of one section across documentation versions ("/docs/15/x" and "/docs/x") form a group.
+  // Each group yields one result, at the position of its best-ranked copy, using the current
+  // (unversioned) copy when it is among the candidates. The per-document cap counts all versions.
+  const family = new Map<string, { key: string; versioned: boolean }>();
+  const groupOf = new Map<string, string>();
+  const chosen = new Map<string, PassageRow>();
+  for (const row of rows) {
+    const fam = documentFamily(row.source_id, row.url ?? row.path ?? row.document_id);
+    const group = JSON.stringify([fam.key, row.heading_path_json, row.occurrence_index]);
+    family.set(row.id, fam);
+    groupOf.set(row.id, group);
+    const current = chosen.get(group);
+    if (!current || (family.get(current.id)!.versioned && !fam.versioned)) chosen.set(group, row);
+  }
+
   const sources = configuredSources(context.loaded);
   const seenContent = new Set<string>();
+  const seenGroups = new Set<string>();
   const perDocument = new Map<string, number>();
   let bytes = 0;
 
-  for (const row of rows) {
+  for (const ranked of rows) {
     if (response.results.length >= limit) break;
+    const group = groupOf.get(ranked.id)!;
+    if (seenGroups.has(group)) continue;
+    const row = chosen.get(group)!;
+    const familyKey = family.get(row.id)!.key;
     if (seenContent.has(row.content_hash)) continue;
-    const docCount = perDocument.get(row.document_id) ?? 0;
+    const docCount = perDocument.get(familyKey) ?? 0;
     if (docCount >= SEARCH_LIMITS.perDocumentCap) continue;
 
-    const result = toResult(row, sources, Math.round(-(row.rank ?? 0) * 10_000) / 10_000);
+    // Score of the group's best copy, so scores keep decreasing down the list.
+    const result = toResult(row, sources, Math.round(-(ranked.rank ?? 0) * 10_000) / 10_000);
     const excerpt = truncateText(result.text, SEARCH_LIMITS.excerptChars);
     result.text = excerpt.text;
     if (excerpt.truncated) response.truncated = true;
@@ -201,7 +255,8 @@ export function search(context: RetrievalContext, params: SearchParams): SearchR
     }
     bytes += size;
     seenContent.add(row.content_hash);
-    perDocument.set(row.document_id, docCount + 1);
+    seenGroups.add(group);
+    perDocument.set(familyKey, docCount + 1);
     response.results.push(result);
   }
   return response;

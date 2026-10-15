@@ -6,6 +6,7 @@ import { silentLogger } from '../src/utils/logger.js';
 
 export const FIXTURES_DIR = path.resolve(__dirname, 'fixtures');
 export const DOCS_FIXTURE = path.join(FIXTURES_DIR, 'docs');
+export const VERSIONED_FIXTURE = path.join(FIXTURES_DIR, 'versioned');
 
 export function makeTempDir(prefix = 'citepath-test-'): string {
   return fs.mkdtempSync(path.join(os.tmpdir(), prefix));

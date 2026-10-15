@@ -64,7 +64,7 @@ Every source has an `id`: 1 to 63 lowercase letters, digits, `-` or `_`. Choose 
 
 The crawler identifies itself as `Citepath/<version> (+https://github.com/arif-js/cite-path)` and follows robots.txt for the `Citepath` user agent (or `*`).
 
-Only static HTML is indexed. Pages that need JavaScript to render, PDFs, and other file types are reported in the sync summary and skipped.
+Static HTML pages and pages served as Markdown (`text/markdown` or `text/x-markdown`) are indexed; links in Markdown pages are followed when crawling. Pages that need JavaScript to render, PDFs, and other file types are reported in the sync summary and skipped.
 
 ## Local sources (`"type": "local"`)
 

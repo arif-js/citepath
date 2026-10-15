@@ -2,6 +2,7 @@ import type { Dispatcher } from 'undici';
 import { CRAWL_DEFAULTS, MIN_PAGE_TEXT_CHARS } from '../../config/defaults.js';
 import type { WebSourceConfig } from '../../config/schema.js';
 import { parseHtml } from '../../indexing/html.js';
+import { parseMarkdownPage } from '../../indexing/markdown.js';
 import { buildDocument } from '../../indexing/passages.js';
 import { AsyncQueue } from '../../utils/async-queue.js';
 import {
@@ -25,6 +26,7 @@ const SOFT_404 =
   /(^|\W)(404|page not found|not found|page (does not|doesn't|doesn’t) exist|no longer exists)(\W|$)/i;
 const SOFT_404_MAX_TEXT = 3000;
 const HTML_TYPES = /text\/html|application\/xhtml\+xml/i;
+const MARKDOWN_TYPES = /text\/(?:x-)?markdown/i;
 
 export interface WebAdapterOptions {
   /** Base delay for retrying transient failures without Retry-After (doubles per attempt). */
@@ -402,7 +404,8 @@ export class WebSourceAdapter implements SourceAdapter {
       };
     }
 
-    if (!HTML_TYPES.test(result.contentType)) {
+    const isMarkdown = MARKDOWN_TYPES.test(result.contentType);
+    if (!isMarkdown && !HTML_TYPES.test(result.contentType)) {
       return {
         outcomes: [
           {
@@ -417,7 +420,9 @@ export class WebSourceAdapter implements SourceAdapter {
       };
     }
 
-    const parsed = parseHtml(result.body, result.finalUrl, { contentSelector: this.config.content_selector });
+    const parsed = isMarkdown
+      ? parseMarkdownPage(result.body, result.finalUrl)
+      : parseHtml(result.body, result.finalUrl, { contentSelector: this.config.content_selector });
     const links = parsed.links;
     const finalKey = this.normalize(result.finalUrl);
     const canonical =

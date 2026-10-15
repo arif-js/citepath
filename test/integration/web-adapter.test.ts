@@ -120,6 +120,33 @@ describe('Website adapter', () => {
       expect(install.alternateUrls).toEqual([]);
     });
 
+    it('indexes pages served as Markdown and follows their links', async () => {
+      server.set('/md/', {
+        status: 200,
+        headers: { 'Content-Type': 'text/markdown; charset=utf-8' },
+        body: '# Upgrading to version 16\n\n## Breaking changes\n\nThe `middleware` file is now called `proxy`. See [caching](./caching) and [outside](https://elsewhere.test/x).\n',
+      });
+      server.set('/md/caching', {
+        status: 200,
+        headers: { 'Content-Type': 'text/x-markdown' },
+        body: '# Caching\n\n## Cache lifetime\n\nCall `cacheLife` inside a `use cache` function to set the cache lifetime.\n',
+      });
+      const outcomes = await collect(adapterFor({ url: `${origin}/md/`, discovery: 'crawl' }));
+      const docs = byKind(outcomes, 'document');
+      expect(docs.map((d) => d.location).sort()).toEqual([loc('/md'), loc('/md/caching')]);
+      const upgrade = docs.find((d) => d.location === loc('/md'))!;
+      expect(upgrade.document.title).toBe('Upgrading to version 16');
+      // The H1 has no text of its own, so the first passage is its subsection.
+      expect(upgrade.document.passages.map((p) => p.anchor)).toEqual(['breaking-changes']);
+      expect(upgrade.document.passages[0]!.headingPath).toEqual([
+        'Upgrading to version 16',
+        'Breaking changes',
+      ]);
+      expect(upgrade.document.passages.map((p) => p.text).join('\n')).toContain('now called `proxy`');
+      expect(byKind(outcomes, 'failed')).toEqual([]);
+      expect(server.requestsFor('/md/caching')).toHaveLength(1);
+    });
+
     it('stops at max_depth and max_pages and reports incomplete discovery', async () => {
       const shallow = adapterFor({ discovery: 'crawl', max_depth: 2 });
       const docs = byKind(await collect(shallow), 'document').map((d) => d.location);

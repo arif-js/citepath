@@ -4,9 +4,7 @@
 #   1. Index the current Next.js docs into a separate demo index (takes a few minutes):
 #        export CITEPATH_DEMO_DIR=/tmp/citepath-demo
 #        CITEPATH_CONFIG=$CITEPATH_DEMO_DIR/config.json CITEPATH_DATA_DIR=$CITEPATH_DEMO_DIR/data \
-#          citepath add nextjs --url https://nextjs.org/docs/app --include '/docs/app/**' \
-#          --exclude '/docs/app/guides/upgrading/version-16' --sync
-#      (version-16 is served as text/markdown, which the web adapter does not index yet.)
+#          citepath add nextjs --url https://nextjs.org/docs/app --include '/docs/app/**' --sync
 #   2. From the repository root, with CITEPATH_DEMO_DIR still set:
 #        vhs docs/assets/demo.tape
 

@@ -3,6 +3,7 @@ import type Token from 'markdown-it/lib/token.mjs';
 import { normalizeText } from '../utils/encoding.js';
 import type { Block, BlockKind, ParsedDocument } from './blocks.js';
 import { type ChunkOptions, chunkBlocks } from './chunker.js';
+import type { HtmlDocument } from './html.js';
 
 export interface MarkdownChunk {
   heading: string;
@@ -186,6 +187,35 @@ export function parseMarkdown(markdownSource: string, options: ParseMarkdownOpti
   const firstH1 = blocks.find((b) => b.kind === 'heading' && b.level === 1)?.headingText;
   const title = frontMatter.title || firstH1 || options.documentTitle || '';
   return { title, blocks, metadata: frontMatter };
+}
+
+/**
+ * Parses a web page served as Markdown (`text/markdown`) into the same shape as an HTML page:
+ * blocks, absolute http(s) links for discovery, and the extracted text length.
+ */
+export function parseMarkdownPage(markdownSource: string, pageUrl: string): HtmlDocument {
+  const parsed = parseMarkdown(markdownSource);
+  const links = new Set<string>();
+  const visit = (tokens: Token[]) => {
+    for (const token of tokens) {
+      if (token.type === 'link_open') {
+        const href = token.attrGet('href');
+        if (href) {
+          try {
+            const url = new URL(href, pageUrl);
+            url.hash = '';
+            if (url.protocol === 'http:' || url.protocol === 'https:') links.add(url.toString());
+          } catch {
+            // Not a usable URL.
+          }
+        }
+      }
+      if (token.children) visit(token.children);
+    }
+  };
+  visit(md.parse(normalizeText(markdownSource), {}));
+  const textLength = parsed.blocks.reduce((sum, block) => sum + block.text.length, 0);
+  return { ...parsed, links: [...links], noindex: false, textLength };
 }
 
 /** Parses plain text into paragraph blocks separated by blank lines. */

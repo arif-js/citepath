@@ -4,7 +4,7 @@ This document records what Citepath is for, the principles every change must res
 
 ## Purpose
 
-Citepath indexes a team's technical documentation and returns relevant passages with source citations to AI assistants and applications. The core workflow: add a source, sync it, search it through MCP, the CLI, or the local API, and get passages that link back to where they came from. Citepath retrieves; it never generates answers.
+Citepath indexes documentation of any kind (product and API docs, framework references, help centers, wikis, runbooks, and Markdown or text folders) and returns relevant passages with source citations to AI assistants and applications. The core workflow: add a source, sync it, search it through MCP, the CLI, or the local API, and get passages that link back to where they came from. Citepath retrieves; it never generates answers.
 
 It is built for:
 

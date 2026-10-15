@@ -2,7 +2,7 @@
 
 # Citepath
 
-**Self-hosted search over your technical documentation, with citations, for AI assistants and apps.**
+**Self-hosted search over your documentation, with citations, for AI assistants and apps.**
 
 Index docs websites and local folders, then let Claude, Cursor, or any MCP client answer from the current docs, with a link to every section it used.
 

@@ -4,7 +4,7 @@ Instructions for AI coding agents (Codex, Claude Code, Gemini CLI, and others) w
 
 ## Project
 
-Citepath is an open-source, self-hosted retrieval tool for technical documentation. It indexes documentation sites and local directories, and returns ranked passages with source citations via a CLI, an MCP server, and a local API. It never generates answers.
+Citepath is an open-source, self-hosted retrieval tool for documentation of any kind. It indexes documentation sites and local directories, and returns ranked passages with source citations via a CLI, an MCP server, and a local API. It never generates answers.
 
 **`docs/design.md` is the source of truth for scope**: principles, what is out of scope, and key decisions. The other guides in `docs/` are the source of truth for behavior (`sync.md`, `result-contract.md`, `configuration.md`). Read the relevant document before starting a task. If a task conflicts with them, stop and ask; do not silently diverge. If the user approves a scope or behavior change, update the docs in the same change.
 

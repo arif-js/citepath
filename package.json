@@ -1,7 +1,7 @@
 {
   "name": "citepath",
   "version": "0.1.1",
-  "description": "Open-source, self-hosted retrieval tool for technical documentation",
+  "description": "Self-hosted search over your documentation, with citations, for AI assistants and apps",
   "keywords": [
     "mcp",
     "model-context-protocol",

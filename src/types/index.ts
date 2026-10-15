@@ -53,7 +53,19 @@ export interface SearchResponse {
   filters: SearchFilters;
   /** True when any passage text was shortened or results were dropped to fit the size cap. */
   truncated: boolean;
+  /**
+   * Older documentation versions (folders like "/docs/15/") that also had matching passages.
+   * Pass a `path_prefix` from here to search that version. Empty when none matched.
+   */
+  other_versions: VersionMatch[];
   schema_version: number;
+}
+
+export interface VersionMatch {
+  /** Usable as the `path_prefix` filter: an absolute URL prefix (web) or a relative path (local). */
+  path_prefix: string;
+  /** Matching passages under this prefix among the top search candidates (a lower bound; grows with limit). */
+  matches: number;
 }
 
 export interface PassageWithContext {

@@ -32,6 +32,7 @@ CLI `--json`, MCP structured output, and the HTTP API all return the same shapes
   "effective_limit": 1,
   "filters": {},
   "truncated": false,
+  "other_versions": [],
   "schema_version": 1
 }
 ```
@@ -65,6 +66,7 @@ CLI `--json`, MCP structured output, and the HTTP API all return the same shapes
 | `effective_limit` | The limit actually applied (requests above 25 are capped). |
 | `filters` | Source and path filters that were applied. |
 | `truncated` | Some passage text was shortened, or results were dropped to keep the response under 32 KB. |
+| `other_versions` | Older documentation versions that also had matching passages, as `[{ "path_prefix": "https://nextjs.org/docs/15/", "matches": 12 }]`, most matches first, at most 5. `matches` counts passages among the top candidates the search considered (10 per requested result, at most 250), so it grows with `limit` and is a lower bound, not a total. Search returns the current copy of a page, so pass one of these as `path_prefix` to search that version. Empty when none matched, or when the search is already narrowed to that version. |
 
 ## Passage with context (`get`, `get_passage`, `/v1/passages/{id}`)
 

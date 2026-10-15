@@ -49,6 +49,13 @@ export function formatSearch(response: SearchResponse): string {
   if (response.query_truncated) notes.push('the query was shortened to the maximum length');
   if (response.truncated) notes.push('some text was shortened or results were omitted to fit the size limit');
   if (notes.length > 0) lines.push(`Note: ${notes.join('; ')}. Use get_passage for full text.`);
+  if (response.other_versions.length > 0) {
+    const versions = response.other_versions.map((v) => `${v.path_prefix} (${v.matches})`).join(', ');
+    lines.push(
+      `Note: older documentation versions also matched: ${versions}. ` +
+        'To search one, pass it as the path prefix (CLI --path-prefix, MCP path_prefix).'
+    );
+  }
   return lines.join('\n').trimEnd();
 }
 

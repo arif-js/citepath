@@ -100,6 +100,11 @@ describe('Retrieval core', () => {
     expect(top('maxRetries')).toBe('api/client.md');
   });
 
+  it('reports no other versions for a corpus without version folders', () => {
+    expect(search(ctx(), { query: 'configure authentication' }).other_versions).toEqual([]);
+    expect(search(ctx(), { query: '!!!' }).other_versions).toEqual([]);
+  });
+
   it('does not rank one-line sections on the page title alone', () => {
     // guides/ci-cache.md is titled "How to configure CI build caching", but its provider sections
     // never mention configuring or caching; guides/caching.md has a real "Cache configuration" section.

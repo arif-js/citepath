@@ -12,10 +12,11 @@ import {
   type SearchResponse,
   type SourceStatus,
   type SourcesResponse,
+  type VersionMatch,
 } from '../types/index.js';
 import { NotFoundError, UsageError } from '../utils/errors.js';
 import { escapeLike } from '../utils/url.js';
-import { documentFamily } from '../utils/versions.js';
+import { documentFamily, versionFolder } from '../utils/versions.js';
 
 /**
  * The single retrieval implementation behind the CLI, MCP server, and local API.
@@ -60,6 +61,36 @@ interface PassageRow {
 
 const PASSAGE_COLUMNS = `p.id, p.document_id, p.source_id, p.ordinal, p.heading_path_json, p.anchor, p.line_start,
   p.line_end, p.text, p.content_hash, p.occurrence_index, d.title, d.url, d.path, d.updated_at, d.fetched_at, d.commit_sha`;
+
+const MAX_OTHER_VERSIONS = 5;
+
+/**
+ * Old-version folders among the candidate passages, as ready-to-use path_prefix values. A folder
+ * the request is already narrowed to is not listed.
+ */
+function otherVersions(rows: PassageRow[], pathPrefix: string | undefined): VersionMatch[] {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    const location = row.url ?? row.path;
+    if (!location) continue;
+    const folder = versionFolder(location);
+    if (!folder) continue;
+    let prefix = folder;
+    if (row.url) {
+      try {
+        prefix = `${new URL(row.url).origin}${folder}`;
+      } catch {
+        continue;
+      }
+    }
+    if (pathPrefix?.startsWith(prefix)) continue;
+    counts.set(prefix, (counts.get(prefix) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, MAX_OTHER_VERSIONS)
+    .map(([path_prefix, matches]) => ({ path_prefix, matches }));
+}
 
 function configuredSources(loaded: LoadedConfig): Map<string, SourceConfig> {
   return new Map(loaded.config.sources.map((s) => [s.id, s]));
@@ -150,6 +181,7 @@ export function search(context: RetrievalContext, params: SearchParams): SearchR
     effective_limit: limit,
     filters,
     truncated: false,
+    other_versions: [],
     schema_version: RESULT_SCHEMA_VERSION,
   };
 
@@ -194,6 +226,8 @@ export function search(context: RetrievalContext, params: SearchParams): SearchR
     const current = chosen.get(group);
     if (!current || (family.get(current.id)!.versioned && !fam.versioned)) chosen.set(group, row);
   }
+
+  response.other_versions = otherVersions(rows, pathPrefix);
 
   const sources = configuredSources(context.loaded);
   const seenContent = new Set<string>();

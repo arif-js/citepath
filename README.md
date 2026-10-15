@@ -38,6 +38,31 @@ The same search works inside your assistant:
 - **Small teams:** internal wikis, runbooks, and docs folders searchable by assistants, without a hosted platform.
 - **Open-source maintainers:** an easy way for users to connect your project's docs to their assistants.
 
+## Why not RAG or web search?
+
+**It is RAG: the retrieval half, run locally.** Instead of embeddings and a vector database, Citepath uses a keyword index. That means no embedding API or keys, exact matches on identifiers like `cacheLife`, the same results for the same query, and citations down to the section. The trade-off: it matches words, not meaning, so "sign in" won't find a page that only says "authentication".
+
+**Web search is better for broad, one-off questions.** Citepath is better when:
+
+- **the docs are private:** internal wikis, runbooks, and repo docs aren't on the web;
+- **the version matters:** you choose what's indexed, and search prefers the current copy of a page over old versions;
+- **you want less to read:** on the Next.js docs, 5 cited passages for "how do I set the cache lifetime" are about 4,200 characters, while the five pages they come from hold about 51,000 characters of text (the `cacheLife` page alone is about 1 MB of HTML);
+- **you're offline,** or your assistant has no web search.
+
+**"The model already knows the docs."** Only the version it was trained on. Fast-moving APIs, such as Next.js `cacheLife`, `cacheComponents`, or the new two-argument `revalidateTag`, are where models answer from outdated memory.
+
+**"Why not paste the docs into the prompt?"** That works for a few pages. The Next.js docs are 845 pages; search picks the few passages that matter.
+
+**Costs and limits.** Measured on a laptop with the Next.js and Vercel docs:
+
+- **Free to run:** no account, API keys, or per-search fees. Searches take milliseconds (p95 13 ms across about 30,000 passages).
+- **Setup time and disk:** syncing 845 Next.js pages took about 7.5 minutes at the polite default of 2 requests per second; the two sites use 83 MB.
+- **Freshness:** results are as current as your last sync. There is no built-in scheduler, so run `citepath sync` from cron.
+- **Not indexed:** sites that need JavaScript to render, PDFs, and docs behind a login.
+- **Single user:** one API token, no per-user permissions.
+
+Use something else for broad questions (web search), meaning-based search (embeddings), or team access control. See [Known limitations](docs/limitations.md).
+
 ## Quick start
 
 Requires Node.js 22.16 or later.

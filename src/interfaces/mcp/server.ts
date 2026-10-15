@@ -59,7 +59,9 @@ export function createMcpServer(getContext: () => RetrievalContext, logger: Logg
       title: 'Search documentation',
       description:
         'Full-text search over indexed documentation. Returns ranked passages with citation URLs. ' +
-        'Works with natural-language questions and code identifiers (getUserName, --dry-run, a.b.c).',
+        'Works with natural-language questions and code identifiers (getUserName, --dry-run, a.b.c). ' +
+        'Results prefer the current docs version. If other_versions is not empty, pass one of its ' +
+        'path_prefix values to search that version.',
       inputSchema: {
         query: z.string().min(1).describe('What to look for: a question, keywords, or identifiers.'),
         limit: z

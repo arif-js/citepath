@@ -123,6 +123,23 @@ describe('Search across documentation versions', () => {
     expect(search(ctx(), { query: 'cache entry lifetime', limit: 10 })).toEqual(first);
   });
 
+  it('lists older versions that also matched, as ready-to-use path prefixes', () => {
+    const response = search(ctx(), { query: 'set the cache lifetime', limit: 5 });
+    expect(response.other_versions.map((v) => v.path_prefix)).toEqual(['15/', 'v14/']);
+    const counts = response.other_versions.map((v) => v.matches);
+    expect(counts.every((n) => n > 0)).toBe(true);
+    expect(counts).toEqual([...counts].sort((a, b) => b - a));
+
+    // Each prefix narrows the search to that version.
+    for (const { path_prefix } of response.other_versions) {
+      const narrowed = search(ctx(), { query: 'set the cache lifetime', limit: 5, path_prefix });
+      expect(narrowed.results.length).toBeGreaterThan(0);
+      expect(narrowed.results.every((r) => r.path!.startsWith(path_prefix))).toBe(true);
+      // The folder the search is narrowed to is not suggested again.
+      expect(narrowed.other_versions).toEqual([]);
+    }
+  });
+
   it('still returns an older version when the search is narrowed to it', () => {
     expect(paths('set the cache lifetime', { path_prefix: '15/' })).toContain(
       '15/guides/caching.md > Set the cache lifetime'

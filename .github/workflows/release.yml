@@ -7,13 +7,17 @@ name: Release
 # npm publishing uses trusted publishing (OIDC): npm trusts this workflow
 # (arif-js/citepath, release.yml) as configured in the citepath package
 # settings on npmjs.com, so no npm token is stored anywhere.
+#
+# Finally, server.json is published to the MCP Registry (registry.modelcontextprotocol.io) as
+# io.github.arif-js/citepath. The registry authenticates this workflow through GitHub OIDC, so no
+# token is stored for it either.
 on:
   push:
     tags: ['v*']
 
 permissions:
   contents: write # create the GitHub Release
-  id-token: write # npm trusted publishing and provenance
+  id-token: write # npm trusted publishing, provenance, and MCP Registry login
 
 jobs:
   release:
@@ -29,6 +33,9 @@ jobs:
       - name: Check the tag matches package.json
         run: |
           test "v$(node -p "require('./package.json').version")" = "${GITHUB_REF_NAME}"
+      - name: Check server.json matches the tag
+        run: |
+          test "v$(node -p "require('./server.json').version")" = "${GITHUB_REF_NAME}"
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
@@ -50,3 +57,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" citepath-*.tgz SHA256SUMS --title "$GITHUB_REF_NAME" --generate-notes
+      - name: Publish to the MCP Registry
+        run: |
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
+          ./mcp-publisher login github-oidc
+          ./mcp-publisher publish

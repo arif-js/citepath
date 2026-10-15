@@ -18,6 +18,8 @@ Each tool returns two forms of the same result:
 
 ## Client setup
 
+Citepath is listed in the [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.arif-js/citepath`, so clients that browse the registry can install it from there. The steps below set it up by hand.
+
 Index something first:
 
 ```sh

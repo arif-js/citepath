@@ -1,0 +1,30 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.arif-js/citepath",
+  "title": "Citepath",
+  "description": "Self-hosted search over your documentation, with citations, for AI assistants and apps",
+  "repository": {
+    "url": "https://github.com/arif-js/citepath",
+    "source": "github"
+  },
+  "websiteUrl": "https://github.com/arif-js/citepath#readme",
+  "version": "0.1.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "registryBaseUrl": "https://registry.npmjs.org",
+      "identifier": "citepath",
+      "version": "0.1.1",
+      "runtimeHint": "npx",
+      "transport": {
+        "type": "stdio"
+      },
+      "packageArguments": [
+        {
+          "type": "positional",
+          "value": "mcp"
+        }
+      ]
+    }
+  ]
+}

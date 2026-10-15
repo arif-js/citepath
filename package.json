@@ -1,6 +1,7 @@
 {
   "name": "citepath",
   "version": "0.1.1",
+  "mcpName": "io.github.arif-js/citepath",
   "description": "Self-hosted search over your documentation, with citations, for AI assistants and apps",
   "keywords": [
     "mcp",
@@ -50,7 +51,8 @@
     "eval:fixtures": "vitest run test/eval",
     "schema:update": "vitest run test/unit/config-schema.test.ts -u",
     "prepublishOnly": "npm run lint && npm run typecheck && npm test",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "version": "node scripts/sync-server-json.mjs && git add server.json"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.1",

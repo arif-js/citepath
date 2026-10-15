@@ -52,7 +52,7 @@ Current gaps that may be addressed later are listed in [Known limitations](limit
 | Raw page cache | Not stored | Parser upgrades re-fetch pages instead, avoiding stored copies of raw HTML. |
 | Platforms | macOS, Linux, and Windows, tested in CI on Node 22.16 and 24 | |
 | Tooling | Vitest (network blocked in tests), Biome | |
-| Distribution | npm package `citepath`, published from CI on version tags with provenance | Matches the command name. Releases only come from tested tags, the npm token lives in a repository secret, and provenance links each version to the commit that built it. |
+| Distribution | npm package `citepath`, published from CI on version tags with provenance | Matches the command name. Releases only come from tested tags; trusted publishing means no npm token exists to leak, and provenance links each version to the commit that built it. |
 | License | MIT | |
 
 ## Performance targets

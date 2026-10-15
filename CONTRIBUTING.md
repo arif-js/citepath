@@ -74,4 +74,4 @@ npm version patch        # or minor; updates package.json and creates the tag
 git push --follow-tags   # pushes the commit and the tag
 ```
 
-The [Release workflow](.github/workflows/release.yml) then runs lint, type check, tests, end-to-end tests, and the eval gate; publishes the package to npm with provenance; and creates a GitHub Release with the same tarball and SHA-256 checksums. npm authenticates with the `NPM_TOKEN` repository secret.
+The [Release workflow](.github/workflows/release.yml) then runs lint, type check, tests, end-to-end tests, and the eval gate; publishes the package to npm with provenance; and creates a GitHub Release with the same tarball and SHA-256 checksums. npm publishing uses trusted publishing, so no npm token is stored anywhere; npm accepts releases only from this workflow.

@@ -143,6 +143,24 @@ describe('Interfaces: CLI, MCP, and HTTP share one retrieval contract', () => {
       }
     });
 
+    it('describes every tool and argument, and says when to use each tool', async () => {
+      const { tools } = await mcp.listTools();
+      const byName = Object.fromEntries(tools.map((t) => [t.name, t]));
+      for (const tool of tools) {
+        expect(tool.title, tool.name).toBeTruthy();
+        expect(tool.description, tool.name).toBeTruthy();
+        const properties = (tool.inputSchema.properties ?? {}) as Record<string, { description?: string }>;
+        for (const [arg, schema] of Object.entries(properties)) {
+          expect(schema.description, `${tool.name}.${arg}`).toBeTruthy();
+        }
+      }
+      // Agents choose between tools from these descriptions, so each one points to the others.
+      expect(byName.search?.description).toContain('get_passage');
+      expect(byName.search?.description).toContain('other_versions');
+      expect(byName.get_passage?.description).toContain('search');
+      expect(byName.list_sources?.description).toContain('source_ids');
+    });
+
     it('fences retrieved text as untrusted in text output, including prompt-injection content', async () => {
       const result = await mcp.callTool({
         name: 'search',

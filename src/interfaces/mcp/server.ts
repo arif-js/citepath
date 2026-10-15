@@ -58,10 +58,12 @@ export function createMcpServer(getContext: () => RetrievalContext, logger: Logg
     {
       title: 'Search documentation',
       description:
-        'Full-text search over indexed documentation. Returns ranked passages with citation URLs. ' +
-        'Works with natural-language questions and code identifiers (getUserName, --dry-run, a.b.c). ' +
-        'Results prefer the current docs version. If other_versions is not empty, pass one of its ' +
-        'path_prefix values to search that version.',
+        'Start here: full-text search over the documentation indexed on this machine. Returns ranked ' +
+        'passages, each with an id, title, heading path, citation_url, and text (long passages are ' +
+        'shortened; read them in full with get_passage). Works with natural-language questions and code ' +
+        'identifiers (getUserName, --dry-run, a.b.c). Results come from the current docs version; ' +
+        'other_versions lists older versions that also matched, each with a path_prefix to pass back as ' +
+        'path_prefix to search that version. Use list_sources to see which sources exist. Read-only.',
       inputSchema: {
         query: z.string().min(1).describe('What to look for: a question, keywords, or identifiers.'),
         limit: z
@@ -73,11 +75,17 @@ export function createMcpServer(getContext: () => RetrievalContext, logger: Logg
           .describe(
             `Number of passages (default ${SEARCH_LIMITS.defaultLimit}, max ${SEARCH_LIMITS.maxLimit}).`
           ),
-        source_ids: z.array(z.string()).optional().describe('Only search these sources (see list_sources).'),
+        source_ids: z
+          .array(z.string())
+          .optional()
+          .describe('Only search these source IDs, as returned by list_sources. Omit to search all sources.'),
         path_prefix: z
           .string()
           .optional()
-          .describe('Only passages whose URL or path starts with this prefix.'),
+          .describe(
+            'Only passages whose URL (web sources) or root-relative path (local sources) starts with this ' +
+              'prefix, for example a docs section or an other_versions path_prefix from a previous search.'
+          ),
       },
       annotations: READ_ONLY,
     },
@@ -100,16 +108,26 @@ export function createMcpServer(getContext: () => RetrievalContext, logger: Logg
     {
       title: 'Read a passage',
       description:
-        'Returns the full text of a passage by ID, optionally with neighboring passages for context.',
+        'Reads one passage in full by its ID, after search has found it. Use it when a search result was ' +
+        'shortened, or when you need the text around a passage: neighbors adds up to ' +
+        `${SEARCH_LIMITS.maxNeighbors} passages before and after it from the same page, in document order. ` +
+        'Returns { passage, before, after }, each passage with its citation_url. To find passages, use ' +
+        'search instead. Read-only; fails if the ID is unknown or its source was removed.',
       inputSchema: {
-        id: z.string().min(1).describe('Passage ID from a search result.'),
+        id: z
+          .string()
+          .min(1)
+          .describe('The id field of a passage from a search result. IDs stay stable across syncs.'),
         neighbors: z
           .number()
           .int()
           .min(0)
           .max(SEARCH_LIMITS.maxNeighbors)
           .optional()
-          .describe(`Passages to include before and after (0-${SEARCH_LIMITS.maxNeighbors}).`),
+          .describe(
+            `How many passages from the same page to include before and after it, in document order ` +
+              `(0-${SEARCH_LIMITS.maxNeighbors}, default 0).`
+          ),
       },
       annotations: READ_ONLY,
     },
@@ -131,7 +149,10 @@ export function createMcpServer(getContext: () => RetrievalContext, logger: Logg
     'list_sources',
     {
       title: 'List sources',
-      description: 'Lists configured documentation sources with document counts and last sync status.',
+      description:
+        'Lists the configured documentation sources: id, name, type, document and passage counts, and the ' +
+        'last sync status. Use the ids to narrow search with source_ids. Sources are added and synced only ' +
+        'from the citepath CLI, not through MCP. Read-only.',
       inputSchema: {},
       annotations: READ_ONLY,
     },

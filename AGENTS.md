@@ -10,7 +10,7 @@ Citepath is an open-source, self-hosted retrieval tool for technical documentati
 
 ## Current status
 
-The MVP is implemented and tested. Stack: TypeScript on Node.js ≥ 22.16 (native ESM), SQLite FTS5 through the built-in `node:sqlite`, Vitest, Biome, `@modelcontextprotocol/sdk`, MIT license. Decisions are recorded in `docs/design.md` → "Key decisions"; only the npm package name and post-1.0 semantic retrieval remain open.
+The MVP is implemented and tested. Stack: TypeScript on Node.js ≥ 22.16 (native ESM), SQLite FTS5 through the built-in `node:sqlite`, Vitest, Biome, `@modelcontextprotocol/sdk`, MIT license. Decisions are recorded in `docs/design.md` → "Key decisions"; only post-1.0 semantic retrieval remains open.
 
 - Do not resolve an open decision on your own, including implicitly through the schema or file layout. Propose options with trade-offs and wait.
 - The index schema (`src/store/migrations.ts`, currently v3) is unreleased until the first tagged release. Existing local indexes still upgrade through migrations, so add a new migration for schema changes rather than editing an existing one.
@@ -129,7 +129,7 @@ Keep this table in sync with `package.json`. Use npm, which ships with Node.
 | Task | Command |
 | --- | --- |
 | Install deps | `npm ci` |
-| Build (also runs on `npm ci` via `prepare`) | `npm run build` |
+| Build (also runs before `npm pack`/`npm publish` via `prepack`) | `npm run build` |
 | Test (unit + integration, offline) | `npm test` |
 | End-to-end tests (needs a build) | `npm run test:e2e` |
 | Test (single file) | `npx vitest run path/to/file.test.ts` |
@@ -140,6 +140,7 @@ Keep this table in sync with `package.json`. Use npm, which ships with Node.
 | Format and fix | `npm run format` |
 | Regenerate config JSON Schema | `npm run schema:update` |
 | Retrieval quality gate | `npm run eval:fixtures` |
+| Release (CI tests and publishes to npm) | `npm version <patch\|minor> && git push --follow-tags` |
 
 ## Code style
 

@@ -68,9 +68,7 @@ Use something else for broad questions (web search), meaning-based search (embed
 Requires Node.js 22.16 or later.
 
 ```sh
-git clone https://github.com/arif-js/cite-path.git
-cd cite-path
-npm ci && npm link
+npm install -g citepath
 
 citepath add my-docs --path ~/work/project/docs --sync
 citepath search "how do I configure authentication"
@@ -79,7 +77,7 @@ citepath search "how do I configure authentication"
 claude mcp add citepath -s user -- citepath mcp
 ```
 
-Run `/mcp` in Claude Code to check the connection. For other assistants and scope options, see [MCP setup](docs/mcp.md).
+Run `/mcp` in Claude Code to check the connection. For other assistants and scope options, see [MCP setup](docs/mcp.md). To run from source, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Commands
 

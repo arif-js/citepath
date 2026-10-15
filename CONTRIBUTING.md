@@ -15,7 +15,8 @@ Requires Node.js 22.16 or later.
 ```sh
 git clone https://github.com/arif-js/cite-path.git
 cd cite-path
-npm ci            # installs dependencies and builds dist/
+npm ci            # installs dependencies
+npm run build     # builds dist/ (npm link then puts `citepath` on your PATH)
 ```
 
 | Task | Command |
@@ -63,3 +64,14 @@ Stack: TypeScript (ESM) on Node.js, SQLite FTS5 via the built-in `node:sqlite` (
 5. Make sure `npm run lint`, `npm run typecheck`, `npm test`, and `npm run test:e2e` pass. CI runs them on Linux, macOS, and Windows.
 
 By contributing, you agree that your contributions are licensed under the [MIT License](LICENSE).
+
+## Releasing (maintainers)
+
+Releases are published by CI from a version tag; nobody publishes from a laptop.
+
+```sh
+npm version patch        # or minor; updates package.json and creates the tag
+git push --follow-tags   # pushes the commit and the tag
+```
+
+The [Release workflow](.github/workflows/release.yml) then runs lint, type check, tests, end-to-end tests, and the eval gate; publishes the package to npm with provenance; and creates a GitHub Release with the same tarball and SHA-256 checksums. npm publishing uses trusted publishing, so no npm token is stored in the repository.

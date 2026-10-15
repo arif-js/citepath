@@ -65,13 +65,13 @@ describe('Sync engine: local sources', () => {
   it('indexes, then re-syncs without duplicates and with identical IDs', async () => {
     const first = await sync();
     expect(first.status).toBe('completed');
-    expect(first.counts.added).toBe(11);
+    expect(first.counts.added).toBe(12);
     expect(first.warnings).toEqual([]);
     const before = snapshot(db, 'nimbus');
     expect(ftsCount(db)).toBe(passageTotal(db));
 
     const second = await sync();
-    expect(second.counts).toMatchObject({ added: 0, updated: 0, unchanged: 11, removed: 0 });
+    expect(second.counts).toMatchObject({ added: 0, updated: 0, unchanged: 12, removed: 0 });
     expect(snapshot(db, 'nimbus')).toEqual(before);
     expect(ftsCount(db)).toBe(passageTotal(db));
   });
@@ -90,7 +90,7 @@ describe('Sync engine: local sources', () => {
       fs.readFileSync(file, 'utf8').replace('Returns the display name', 'Returns the full display name')
     );
     const result = await sync();
-    expect(result.counts).toMatchObject({ updated: 1, unchanged: 10, added: 0, removed: 0 });
+    expect(result.counts).toMatchObject({ updated: 1, unchanged: 11, added: 0, removed: 0 });
 
     const idsAfter = db
       .prepare(
@@ -124,6 +124,7 @@ describe('Sync engine: local sources', () => {
       'cli.mdx',
       'empty.md',
       'getting-started.md',
+      'guides/ci-cache.md',
       'guides/pagination.md',
       'guides/webhooks.md',
     ]) {
@@ -131,14 +132,14 @@ describe('Sync engine: local sources', () => {
     }
     const guarded = await sync();
     expect(guarded.status).toBe('completed_with_failures');
-    expect(guarded.mass_delete_guard).toMatchObject({ triggered: true, would_remove: 6, existing: 11 });
+    expect(guarded.mass_delete_guard).toMatchObject({ triggered: true, would_remove: 7, existing: 12 });
     expect(guarded.counts.removed).toBe(0);
     expect(db.prepare("SELECT count(*) AS c FROM documents WHERE source_id = 'nimbus'").get()).toEqual({
-      c: 11,
+      c: 12,
     });
 
     const forced = await sync(source, { allowMassDelete: true });
-    expect(forced.counts.removed).toBe(6);
+    expect(forced.counts.removed).toBe(7);
   });
 
   it('fails without removing anything when the source directory is missing', async () => {
@@ -208,7 +209,7 @@ describe('Sync engine: local sources', () => {
     await sync();
     db.prepare('UPDATE documents SET parser_version = 0').run();
     const result = await sync();
-    expect(result.counts.updated).toBe(11);
+    expect(result.counts.updated).toBe(12);
   });
 
   it('records Git provenance when the source is a Git checkout', async (ctx) => {

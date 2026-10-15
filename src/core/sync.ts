@@ -2,7 +2,7 @@ import type { DatabaseSync } from 'node:sqlite';
 import { SYNC_DEFAULTS } from '../config/defaults.js';
 import { type LoadedConfig, localSourceRoot } from '../config/load.js';
 import type { SourceConfig } from '../config/schema.js';
-import { type DocumentRecord, PARSER_VERSION } from '../indexing/passages.js';
+import { type DocumentRecord, ftsHeadingPath, PARSER_VERSION } from '../indexing/passages.js';
 import type { ItemOutcome, KnownDocument, SourceAdapter } from '../sources/adapter.js';
 import { LocalSourceAdapter } from '../sources/local/adapter.js';
 import { WebSourceAdapter } from '../sources/web/adapter.js';
@@ -212,7 +212,7 @@ function insertPassages(db: DatabaseSync, sourceId: string, doc: DocumentRecord)
     insertFts.run(
       Number(result.lastInsertRowid),
       doc.title,
-      passage.headingPath.join(' / '),
+      ftsHeadingPath(doc.title, passage.headingPath),
       passage.text,
       passage.codeTerms
     );

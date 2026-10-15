@@ -31,6 +31,7 @@ describe('Local directory adapter', () => {
       'empty.md',
       'getting-started.md',
       'guides/caching.md',
+      'guides/ci-cache.md',
       'guides/pagination.md',
       'guides/webhooks.md',
       'i18n/de.md',
@@ -79,7 +80,12 @@ describe('Local directory adapter', () => {
   it('applies include and exclude globs and reports scope', async () => {
     const adapter = adapterFor({ include: ['guides/**/*.md', 'api/**'], exclude: ['guides/pagination.md'] });
     const locations = byKind(await collect(adapter), 'document').map((d) => d.location);
-    expect(locations).toEqual(['api/client.md', 'guides/caching.md', 'guides/webhooks.md']);
+    expect(locations).toEqual([
+      'api/client.md',
+      'guides/caching.md',
+      'guides/ci-cache.md',
+      'guides/webhooks.md',
+    ]);
     expect(adapter.isInScope('guides/webhooks.md')).toBe(true);
     expect(adapter.isInScope('guides/pagination.md')).toBe(false);
     expect(adapter.isInScope('getting-started.md')).toBe(false);

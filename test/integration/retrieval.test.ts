@@ -100,6 +100,23 @@ describe('Retrieval core', () => {
     expect(top('maxRetries')).toBe('api/client.md');
   });
 
+  it('does not rank one-line sections on the page title alone', () => {
+    // guides/ci-cache.md is titled "How to configure CI build caching", but its provider sections
+    // never mention configuring or caching; guides/caching.md has a real "Cache configuration" section.
+    const results = search(ctx(), {
+      query: 'configure caching',
+      limit: 5,
+      source_ids: ['nimbus'],
+    }).results;
+    expect(results[0]?.path).toBe('guides/caching.md');
+    expect(results[0]?.heading_path.at(-1)).toBe('Cache configuration');
+    // The provider one-liners may still match through the title, but only below the real section.
+    const providerRanks = results
+      .map((r, rank) => (['Netlify', 'Travis', 'GitLab'].includes(r.heading_path.at(-1)!) ? rank : -1))
+      .filter((rank) => rank >= 0);
+    expect(providerRanks.every((rank) => rank > 0)).toBe(true);
+  });
+
   it('never throws on search-syntax characters and returns empty results for no match', () => {
     for (const query of [
       'AND',

@@ -34,6 +34,17 @@ export interface DocumentRecord {
   passages: PassageRecord[];
 }
 
+/**
+ * The FTS heading_path value for a passage. The top heading is dropped when it repeats the page
+ * title, which has its own column; otherwise every passage on a page would rank on the title twice,
+ * and one-line sections would outrank sections that actually discuss the query.
+ */
+export function ftsHeadingPath(title: string, headingPath: string[]): string {
+  const [first, ...rest] = headingPath;
+  const repeatsTitle = first !== undefined && first.trim().toLowerCase() === title.trim().toLowerCase();
+  return (repeatsTitle ? rest : headingPath).join(' / ');
+}
+
 /** The FTS code_terms value for a passage. Also used to rebuild the FTS index in migrations. */
 export function passageCodeTerms(headingPath: string[], text: string): string {
   return extractCodeTerms(`${headingPath.join(' ')} ${text}`).join(' ');

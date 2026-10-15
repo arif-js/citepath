@@ -123,9 +123,51 @@ describe('Index schema and migrations', () => {
     // Stemmed: "caching" finds a passage that says "cache"; code_terms were rebuilt ("clear" from clearCache).
     expect(matches(db, '"caching" AND "empty"')).toEqual([total]);
     expect(matches(db, 'code_terms : "clear"')).toEqual([total]);
+    // v3: the page title is not repeated in the heading column.
+    expect(matches(db, 'heading_path : "response"')).toEqual([]);
+    expect(matches(db, 'heading_path : "part"')).toHaveLength(total);
+    expect(matches(db, 'title : "response"')).toHaveLength(total);
     // The recreated delete trigger still keeps the FTS index in step.
     db.prepare("DELETE FROM sources WHERE id = 's'").run();
     expect((db.prepare('SELECT count(*) AS c FROM passages_fts').get() as { c: number }).c).toBe(0);
+    db.close();
+  });
+
+  it('upgrades a v2 index so the heading column no longer repeats the page title', () => {
+    const raw = new DatabaseSync(indexPath(dir), { enableForeignKeyConstraints: true });
+    raw.exec(MIGRATIONS[0]!.sql);
+    raw.exec(MIGRATIONS[1]!.sql);
+    raw.exec("INSERT INTO meta (key, value) VALUES ('schema_version', '2')");
+    raw.exec("INSERT INTO sources (id, type, config_hash, created_at) VALUES ('s', 'local', 'h', 'now')");
+    raw.exec(
+      `INSERT INTO documents (id, source_id, location, title, content_hash, parser_version, config_hash, fetched_at)
+       VALUES ('d', 's', 'ci.md', 'Build caching', 'h', 1, 'h', 'now')`
+    );
+    raw.exec(
+      `INSERT INTO passages (rowid, id, document_id, source_id, ordinal, heading_path_json, text, content_hash, occurrence_index)
+       VALUES (1, 'p1', 'd', 's', 0, '["Build caching","Netlify"]', 'Use the Netlify plugin.', 'h', 0)`
+    );
+    // As v2 wrote it: the title repeated as the first heading.
+    raw.exec(
+      `INSERT INTO passages_fts (rowid, title, heading_path, text, code_terms)
+       VALUES (1, 'Build caching', 'Build caching / Netlify', 'Use the Netlify plugin.', '')`
+    );
+    const count = (db: DatabaseSync, query: string) =>
+      (
+        db.prepare('SELECT count(*) AS c FROM passages_fts WHERE passages_fts MATCH ?').get(query) as {
+          c: number;
+        }
+      ).c;
+    expect(count(raw, 'heading_path : "caching"')).toBe(1);
+    raw.close();
+
+    const db = openIndex(dir);
+    expect(getSchemaVersion(db)).toBe(LATEST_SCHEMA_VERSION);
+    expect(fs.readdirSync(dir).some((f) => f.includes('.backup-v2-'))).toBe(true);
+    expect(db.prepare('SELECT id FROM passages').all()).toEqual([{ id: 'p1' }]);
+    expect(count(db, 'heading_path : "caching"')).toBe(0);
+    expect(count(db, 'heading_path : "netlify"')).toBe(1);
+    expect(count(db, 'title : "caching"')).toBe(1);
     db.close();
   });
 });

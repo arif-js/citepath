@@ -13,7 +13,7 @@ Citepath is an open-source, self-hosted retrieval tool for technical documentati
 The MVP is implemented and tested. Stack: TypeScript on Node.js ≥ 22.16 (native ESM), SQLite FTS5 through the built-in `node:sqlite`, Vitest, Biome, `@modelcontextprotocol/sdk`, MIT license. Decisions are recorded in `docs/design.md` → "Key decisions"; only the npm package name and post-1.0 semantic retrieval remain open.
 
 - Do not resolve an open decision on your own, including implicitly through the schema or file layout. Propose options with trade-offs and wait.
-- The index schema (`src/store/migrations.ts`, currently v2) is unreleased until the first tagged release. Existing local indexes still upgrade through migrations, so add a new migration for schema changes rather than editing an existing one.
+- The index schema (`src/store/migrations.ts`, currently v3) is unreleased until the first tagged release. Existing local indexes still upgrade through migrations, so add a new migration for schema changes rather than editing an existing one.
 
 ## Code map
 
@@ -111,7 +111,7 @@ These are verified problems with the chosen stack. Don't rediscover them:
 
 - **Raw FTS5 `MATCH` input throws.** `--force`, `a.b.c`, `foo(`, and a bare `AND` all raise `fts5: syntax error`. Never interpolate or pass user text directly as a `MATCH` expression. Build the query from quoted tokens.
 - **The default `unicode61` tokenizer does not split `camelCase`.** Searching "user" does not find `getUserName`. Identifier-aware indexing is required (decided in the M0 prototype).
-- **FTS5 stems with `porter`, which also applies to queries.** The index uses `porter unicode61 remove_diacritics 2` (migration v2), so "caching" matches "cache". Changing the tokenizer means rebuilding `passages_fts` in a migration; reuse `passageCodeTerms` so rebuilt rows match synced ones.
+- **FTS5 stems with `porter`, which also applies to queries.** The index uses `porter unicode61 remove_diacritics 2` (migration v2), so "caching" matches "cache". Changing the tokenizer means rebuilding `passages_fts` in a migration; reuse `passageCodeTerms` and `ftsHeadingPath` so rebuilt rows match synced ones.
 - **Built-in `fetch` cannot enforce SSRF rules.** Use a `undici` dispatcher with a connect-time `lookup` check, and `redirect: "manual"` so every redirect hop is checked against scope and address rules.
 - **stdout belongs to the MCP protocol** when running `citepath mcp`. All logging goes to stderr. A stray `console.log` corrupts the MCP stream.
 - **Always use parameterized SQL.** Never build SQL with string interpolation, including for FTS queries.

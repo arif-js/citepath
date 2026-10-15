@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import type { DatabaseSync } from 'node:sqlite';
-import { passageCodeTerms } from '../indexing/passages.js';
+import { ftsHeadingPath, passageCodeTerms } from '../indexing/passages.js';
 import { IndexError } from '../utils/errors.js';
 
 /**
@@ -40,7 +40,7 @@ function rebuildFts(db: DatabaseSync): void {
       insert.run(
         row.rowid,
         row.title,
-        headingPath.join(' / '),
+        ftsHeadingPath(row.title, headingPath),
         row.text,
         passageCodeTerms(headingPath, row.text)
       );
@@ -182,6 +182,13 @@ export const MIGRATIONS: Migration[] = [
         DELETE FROM passages_fts WHERE rowid = old.rowid;
       END;
     `,
+    run: rebuildFts,
+  },
+  {
+    // Index the page title once per passage: the heading_path column no longer repeats it.
+    // Same tables and IDs; the search index is refilled from stored passages.
+    version: 3,
+    sql: "INSERT INTO passages_fts(passages_fts) VALUES('delete-all');",
     run: rebuildFts,
   },
 ];

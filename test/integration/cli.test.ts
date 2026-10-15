@@ -59,10 +59,10 @@ describe('CLI', () => {
     expect(config.sources[0]).toMatchObject({ id: 'nimbus', type: 'local', path: root, name: 'Nimbus' });
 
     const sources = await json('sources');
-    expect(sources.data.sources[0]).toMatchObject({ id: 'nimbus', documents: 11 });
+    expect(sources.data.sources[0]).toMatchObject({ id: 'nimbus', documents: 12 });
 
     const status = await json('status', 'nimbus');
-    expect(status.data.last_sync.counts.documents_total).toBe(11);
+    expect(status.data.last_sync.counts.documents_total).toBe(12);
 
     const search = await json('search', 'getUserName', '-n', '1');
     expect(search.data.results[0].path).toBe('api/client.md');
@@ -186,7 +186,7 @@ describe('CLI', () => {
     expect(refused.err).toMatch(/--yes/);
 
     const removed = await json('remove', 'nimbus', '--yes');
-    expect(removed.data).toMatchObject({ removed: 'nimbus', documents: 11, removed_from_config: true });
+    expect(removed.data).toMatchObject({ removed: 'nimbus', documents: 12, removed_from_config: true });
     expect(JSON.parse(fs.readFileSync(configPath, 'utf8')).sources).toEqual([]);
     const sources = await json('sources');
     expect(sources.data).toMatchObject({ sources: [], orphaned: [] });
@@ -196,7 +196,7 @@ describe('CLI', () => {
   it('removes orphaned index data for sources deleted from the config by hand', async () => {
     await cli('add', 'nimbus', '--path', root, '--sync');
     fs.writeFileSync(configPath, JSON.stringify({ sources: [] }));
-    expect((await json('sources')).data.orphaned).toEqual([{ id: 'nimbus', documents: 11 }]);
+    expect((await json('sources')).data.orphaned).toEqual([{ id: 'nimbus', documents: 12 }]);
     expect((await cli('remove', 'nimbus', '--yes')).code).toBe(0);
     expect((await json('sources')).data.orphaned).toEqual([]);
   });
@@ -213,11 +213,11 @@ describe('CLI', () => {
       .map((l) => JSON.parse(l));
     expect(lines[0]).toMatchObject({ type: 'export', format: 'citepath-jsonl' });
     expect(lines.filter((l) => l.type === 'source')).toHaveLength(1);
-    expect(lines.filter((l) => l.type === 'document')).toHaveLength(11);
+    expect(lines.filter((l) => l.type === 'document')).toHaveLength(12);
     const passages = lines.filter((l) => l.type === 'passage');
     expect(passages.length).toBeGreaterThan(10);
     expect(passages[0]).toHaveProperty('text');
-    expect(exported.err).toMatch(/Exported 1 sources, 11 documents/);
+    expect(exported.err).toMatch(/Exported 1 sources, 12 documents/);
 
     const compact = await json('compact');
     expect(compact.code).toBe(0);

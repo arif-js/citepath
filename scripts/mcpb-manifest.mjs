@@ -1,10 +1,16 @@
 // The MCPB manifest (https://github.com/modelcontextprotocol/mcpb) for the citepath bundle that
-// Smithery and Claude Desktop install. Built from package.json so the version never drifts.
+// Smithery and Claude Desktop install. Built from package.json and the tools the MCP server
+// registers, so neither the version nor the tool definitions can drift.
 
 /** MCPB packer version used by scripts/build-mcpb.mjs. */
 export const MCPB_CLI_VERSION = '2.1.2';
 
-export function mcpbManifest(pkg) {
+/**
+ * `tools` is the server's tools/list result. The MCPB spec (and Claude Desktop's validator) allows
+ * only name and description per tool. Smithery copies manifest.tools into its server card, which
+ * requires each tool's inputSchema, so `{ fullTools: true }` builds the Smithery variant.
+ */
+export function mcpbManifest(pkg, tools, { fullTools = false } = {}) {
   return {
     manifest_version: '0.3',
     name: pkg.name,
@@ -33,11 +39,9 @@ export function mcpbManifest(pkg) {
         args: [`\${__dirname}/${pkg.bin.citepath}`, 'mcp'],
       },
     },
-    tools: [
-      { name: 'search', description: 'Search indexed documentation; returns ranked, cited passages.' },
-      { name: 'get_passage', description: 'Read a passage in full, with surrounding passages.' },
-      { name: 'list_sources', description: 'List documentation sources and their sync status.' },
-    ],
+    tools: tools.map(({ name, title, description, inputSchema, annotations }) =>
+      fullTools ? { name, title, description, inputSchema, annotations } : { name, description }
+    ),
     tools_generated: false,
     compatibility: {
       platforms: ['darwin', 'win32', 'linux'],

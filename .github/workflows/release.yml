@@ -2,8 +2,8 @@ name: Release
 
 # Push a tag like v0.1.0 to build and test, publish the package to npm with
 # provenance, and publish a GitHub Release with the same tarball, the MCPB
-# bundle (citepath-<version>.mcpb, for Smithery and Claude Desktop), and SHA-256
-# checksums.
+# bundles (citepath-<version>.mcpb for Claude Desktop, and
+# citepath-<version>.smithery.mcpb for Smithery), and SHA-256 checksums.
 #
 # npm publishing uses trusted publishing (OIDC): npm trusts this workflow
 # (arif-js/citepath, release.yml) as configured in the citepath package

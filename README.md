@@ -1,16 +1,32 @@
+<div align="center">
+
 # Citepath
 
-Self-hosted search over your technical documentation, with citations, for AI assistants and apps.
+**Self-hosted search over your technical documentation, with citations, for AI assistants and apps.**
+
+Index docs websites and local folders, then let Claude, Cursor, or any MCP client answer from the current docs, with a link to every section it used.
+
+[![npm](https://img.shields.io/npm/v/citepath)](https://www.npmjs.com/package/citepath)
+[![CI](https://github.com/arif-js/citepath/actions/workflows/ci.yml/badge.svg)](https://github.com/arif-js/citepath/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![MCP](https://img.shields.io/badge/MCP-server-8A2BE2)](https://modelcontextprotocol.io)
+[![Node](https://img.shields.io/node/v/citepath)](https://nodejs.org)
+
+[Quick start](#quick-start) · [Demo](#demo) · [Why not RAG?](#why-not-rag-or-web-search) · [Commands](#commands) · [Docs](#documentation) · [Contributing](#contributing)
+
+</div>
+
+---
 
 > **Status: pre-release (0.1).** Expect breaking changes before 1.0.
 
 ## What it does
 
-- **Indexes your docs:** documentation websites (from the sitemap or by following links, respecting robots.txt) and local Markdown, MDX, or text folders.
-- **Returns cited passages:** each search result links to the exact page section or file lines it came from.
-- **Understands code and plain English:** `getUserName`, `--dry-run`, and "how do I configure caching" all work.
-- **Connects to AI assistants:** Claude Code, Cursor, and other MCP clients search your docs; your own tools use the CLI or a local HTTP API.
-- **Runs locally:** no account, no API keys, no telemetry. Assistants get read-only access, and a failed sync never deletes good data.
+- 📚 **Indexes your docs:** documentation websites (from the sitemap or by following links, respecting robots.txt) and local Markdown, MDX, or text folders.
+- 🔗 **Returns cited passages:** each search result links to the exact page section or file lines it came from.
+- 🧠 **Understands code and plain English:** `getUserName`, `--dry-run`, and "how do I configure caching" all work.
+- 🤖 **Connects to AI assistants:** Claude Code, Cursor, and other MCP clients search your docs; your own tools use the CLI or a local HTTP API.
+- 🔒 **Runs locally:** no account, no API keys, no telemetry. Assistants get read-only access, and a failed sync never deletes good data.
 
 Citepath finds passages; it doesn't write answers. Your assistant writes the answer from those passages and cites them, so you can check every claim.
 

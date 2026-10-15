@@ -18,7 +18,7 @@ Each tool returns two forms of the same result:
 
 ## Client setup
 
-Citepath is listed in the [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.arif-js/citepath`, so clients that browse the registry can install it from there. The steps below set it up by hand.
+Citepath is listed in the [MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.arif-js/citepath`, so clients that browse the registry can install it from there. Each [GitHub release](https://github.com/arif-js/citepath/releases) also includes `citepath-<version>.mcpb`, a bundle that Claude Desktop installs by opening the file and that [Smithery](https://smithery.ai/servers/arif-js/citepath) distributes; it needs Node.js 22.16 or later. However you install the server, add and sync sources with the `citepath` CLI: the MCP tools only search. The steps below set it up by hand.
 
 Index something first:
 

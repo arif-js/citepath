@@ -27,3 +27,7 @@ npm-debug.log*
 .DS_Store
 .idea/
 .vscode/
+
+# MCPB bundle
+.mcpb-build/
+*.mcpb

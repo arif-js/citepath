@@ -134,6 +134,7 @@ Keep this table in sync with `package.json`. Use npm, which ships with Node.
 | End-to-end tests (needs a build) | `npm run test:e2e` |
 | Test (single file) | `npx vitest run path/to/file.test.ts` |
 | Test (by name) | `npx vitest run -t "name pattern"` |
+| Build the MCPB bundle (needs a build and network) | `npm run mcpb` |
 | Benchmark | `npm run bench` |
 | Type check | `npm run typecheck` (`tsc --noEmit`) |
 | Lint | `npm run lint` (Biome) |

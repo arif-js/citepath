@@ -8,9 +8,7 @@ name: Release
 # (arif-js/citepath, release.yml) as configured in the citepath package
 # settings on npmjs.com, so no npm token is stored anywhere.
 #
-# Finally, server.json is published to the MCP Registry (registry.modelcontextprotocol.io) as
-# io.github.arif-js/citepath. The registry authenticates this workflow through GitHub OIDC, so no
-# token is stored for it either.
+# Finally, the mcp-registry job publishes server.json to the MCP Registry (see mcp-registry.yml).
 on:
   push:
     tags: ['v*']
@@ -57,8 +55,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" citepath-*.tgz SHA256SUMS --title "$GITHUB_REF_NAME" --generate-notes
-      - name: Publish to the MCP Registry
-        run: |
-          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
-          ./mcp-publisher login github-oidc
-          ./mcp-publisher publish
+
+  mcp-registry:
+    needs: release
+    uses: ./.github/workflows/mcp-registry.yml

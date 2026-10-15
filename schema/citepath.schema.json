@@ -1,0 +1,217 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "data_dir": {
+      "description": "Index location. Overridden by --data-dir and CITEPATH_DATA_DIR.",
+      "type": "string",
+      "minLength": 1
+    },
+    "mass_delete_threshold": {
+      "description": "Default share of a source that one sync may remove (0-1].",
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
+    "sources": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
+              },
+              "type": {
+                "type": "string",
+                "const": "web"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "url": {
+                "type": "string",
+                "description": "Start URL. Its directory path is the default crawl scope."
+              },
+              "path_prefix": {
+                "description": "Crawl scope path prefix. Defaults to the directory of `url`.",
+                "type": "string",
+                "format": "starts_with",
+                "pattern": "^\\/.*"
+              },
+              "sitemap_urls": {
+                "description": "Sitemaps to use instead of auto-discovery.",
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "discovery": {
+                "description": "auto: sitemap if one is found, else follow links.",
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "sitemap",
+                  "crawl"
+                ]
+              },
+              "include": {
+                "description": "URL path globs to include, e.g. \"/docs/**\".",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "exclude": {
+                "description": "URL path globs to exclude.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "content_selector": {
+                "description": "CSS selector for the main content region.",
+                "type": "string",
+                "minLength": 1
+              },
+              "query_params": {
+                "description": "How to treat URL query strings. Default: drop.",
+                "type": "string",
+                "enum": [
+                  "drop",
+                  "keep"
+                ]
+              },
+              "max_pages": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "max_depth": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "max_response_bytes": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "timeout_ms": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "max_redirects": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 20
+              },
+              "concurrency": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 16
+              },
+              "requests_per_second": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 50
+              },
+              "allow_private_network": {
+                "description": "Allow private, loopback, and link-local addresses (e.g. an intranet docs site).",
+                "type": "boolean"
+              },
+              "mass_delete_threshold": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]{0,62}$"
+              },
+              "type": {
+                "type": "string",
+                "const": "local"
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Directory to index. Relative paths resolve from the config file."
+              },
+              "include": {
+                "description": "File globs relative to the source root.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "exclude": {
+                "description": "File globs to exclude.",
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "base_url": {
+                "description": "Public URL that corresponds to the source root.",
+                "type": "string"
+              },
+              "url_style": {
+                "description": "repository: <base>/<path>#L10-L20; site: <base>/<path without extension>#<slug>.",
+                "type": "string",
+                "enum": [
+                  "repository",
+                  "site"
+                ]
+              },
+              "max_file_bytes": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "mass_delete_threshold": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "id",
+              "type",
+              "path"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

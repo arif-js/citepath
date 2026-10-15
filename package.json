@@ -1,0 +1,50 @@
+{
+  "name": "citepath",
+  "version": "0.1.0",
+  "description": "Open-source, self-hosted retrieval tool for technical documentation",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.16.0"
+  },
+  "bin": {
+    "citepath": "dist/interfaces/cli/index.js"
+  },
+  "files": [
+    "dist",
+    "schema",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\" && tsc -p tsconfig.build.json && node -e \"require('fs').chmodSync('dist/interfaces/cli/index.js',0o755)\"",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run test/unit test/integration",
+    "test:e2e": "vitest run test/e2e",
+    "bench": "vitest run test/perf",
+    "eval:fixtures": "vitest run test/eval",
+    "schema:update": "vitest run test/unit/config-schema.test.ts -u"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.6.1",
+    "cheerio": "^1.2.0",
+    "ignore": "^7.0.12",
+    "markdown-it": "^14.1.0",
+    "picomatch": "^4.0.7",
+    "robots-parser": "^3.0.1",
+    "undici": "^7.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^22.13.0",
+    "@types/picomatch": "^4.0.3",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

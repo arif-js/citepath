@@ -1,0 +1,5 @@
+Release notes for Nimbus 2.3.1.
+
+Fixed a crash when listing buckets with more than ten thousand objects.
+
+Improved retry behaviour for E_RATE_LIMITED responses.

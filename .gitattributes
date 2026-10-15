@@ -1,0 +1,5 @@
+# Keep LF everywhere so line-range citations and fixtures behave the same on Windows.
+* text=auto eol=lf
+*.png binary
+*.gz binary
+*.pdf binary

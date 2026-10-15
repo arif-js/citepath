@@ -1,0 +1,40 @@
+{
+  "k": 5,
+  "questions": [
+    { "id": "install", "question": "How do I install the SDK?", "expected": ["getting-started.md"] },
+    {
+      "id": "api-key-env",
+      "question": "Which environment variable holds the API key?",
+      "expected": [{ "path": "getting-started.md", "anchor": "configure-authentication" }]
+    },
+    { "id": "identifier", "question": "getUserName", "expected": ["api/client.md"] },
+    { "id": "error-code", "question": "What does ERR_INVALID_TOKEN mean?", "expected": ["api/client.md"] },
+    { "id": "retries", "question": "default value of maxRetries", "expected": ["api/client.md"] },
+    {
+      "id": "webhook-signature",
+      "question": "verify webhook signature with HMAC",
+      "expected": ["guides/webhooks.md"]
+    },
+    {
+      "id": "pagination",
+      "question": "how do cursors work for pagination",
+      "expected": ["guides/pagination.md"]
+    },
+    { "id": "dry-run", "question": "preview changes without uploading", "expected": ["cli.mdx"] },
+    { "id": "german", "question": "maximale Größe einer Datei", "expected": ["i18n/de.md"] },
+    { "id": "japanese", "question": "ユーザー認証", "expected": ["i18n/ja.md"] },
+    { "id": "release-notes", "question": "crash when listing buckets fixed", "expected": ["notes.txt"] },
+    { "id": "stem-caching", "question": "configure caching", "expected": ["guides/caching.md"] },
+    {
+      "id": "stem-cached",
+      "question": "how long are responses cached",
+      "expected": [{ "path": "guides/caching.md", "anchor": "cache-configuration" }]
+    },
+    { "id": "stem-retrying", "question": "retrying failed requests", "expected": ["api/client.md"] },
+    {
+      "id": "support",
+      "question": "how fast does support answer tickets",
+      "expected": ["security/untrusted.md"]
+    }
+  ]
+}

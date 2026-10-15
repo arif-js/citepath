@@ -1,0 +1,15 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Command-line interface
+
+<Tabs>
+<TabItem value="sync">
+
+Run `nimbus sync ./photos s3://bucket` to upload a directory. Use `--dry-run` to preview changes
+without uploading, and `--force` to overwrite objects that changed remotely.
+
+</TabItem>
+</Tabs>
+
+{/* Internal note: keep flags in sync with the CLI help output. */}

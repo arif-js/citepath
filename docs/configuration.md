@@ -62,7 +62,7 @@ Every source has an `id`: 1 to 63 lowercase letters, digits, `-` or `_`. Choose 
 | `allow_private_network` | `false` | Allow private, loopback, and link-local addresses (e.g. an intranet docs site). |
 | `mass_delete_threshold` | 0.5 | See [How sync works](sync.md#mass-deletion-guard). |
 
-The crawler identifies itself as `Citepath/<version> (+https://github.com/arif-js/cite-path)` and follows robots.txt for the `Citepath` user agent (or `*`).
+The crawler identifies itself as `Citepath/<version> (+https://github.com/arif-js/citepath)` and follows robots.txt for the `Citepath` user agent (or `*`).
 
 Static HTML pages and pages served as Markdown (`text/markdown` or `text/x-markdown`) are indexed; links in Markdown pages are followed when crawling. Pages that need JavaScript to render, PDFs, and other file types are reported in the sync summary and skipped.
 

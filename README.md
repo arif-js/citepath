@@ -104,7 +104,7 @@ Global options: `--json`, `--quiet`, `--config <file>`, `--data-dir <dir>`. See 
 
 ## Contributing
 
-Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), open an [issue](https://github.com/arif-js/cite-path/issues) before a larger feature, and report security problems privately as described in [SECURITY.md](SECURITY.md).
+Contributions are welcome. Read [CONTRIBUTING.md](CONTRIBUTING.md), open an [issue](https://github.com/arif-js/citepath/issues) before a larger feature, and report security problems privately as described in [SECURITY.md](SECURITY.md).
 
 ## License
 

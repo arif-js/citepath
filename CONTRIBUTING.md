@@ -13,8 +13,8 @@ Thanks for helping. Bug reports, documentation fixes, fixture pages that break e
 Requires Node.js 22.16 or later.
 
 ```sh
-git clone https://github.com/arif-js/cite-path.git
-cd cite-path
+git clone https://github.com/arif-js/citepath.git
+cd citepath
 npm ci            # installs dependencies
 npm run build     # builds dist/ (npm link then puts `citepath` on your PATH)
 ```

@@ -5,7 +5,7 @@ name: Release
 # checksums.
 #
 # npm publishing uses trusted publishing (OIDC): npm trusts this workflow
-# (arif-js/cite-path, release.yml) as configured in the citepath package
+# (arif-js/citepath, release.yml) as configured in the citepath package
 # settings on npmjs.com, so no npm token is stored anywhere.
 on:
   push:

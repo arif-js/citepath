@@ -8,7 +8,7 @@ const pkg = createRequire(import.meta.url)('../package.json') as { version: stri
 /** Citepath version, read from package.json. */
 export const VERSION: string = pkg.version;
 
-export const USER_AGENT = `Citepath/${VERSION} (+https://github.com/arif-js/cite-path)`;
+export const USER_AGENT = `Citepath/${VERSION} (+https://github.com/arif-js/citepath)`;
 
 /** Product token matched against robots.txt user-agent groups. */
 export const ROBOTS_USER_AGENT = 'Citepath';

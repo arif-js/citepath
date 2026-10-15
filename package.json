@@ -17,13 +17,13 @@
     "self-hosted",
     "cli"
   ],
-  "homepage": "https://github.com/arif-js/cite-path#readme",
+  "homepage": "https://github.com/arif-js/citepath#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arif-js/cite-path.git"
+    "url": "git+https://github.com/arif-js/citepath.git"
   },
   "bugs": {
-    "url": "https://github.com/arif-js/cite-path/issues"
+    "url": "https://github.com/arif-js/citepath/issues"
   },
   "type": "module",
   "license": "MIT",

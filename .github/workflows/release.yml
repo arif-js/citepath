@@ -4,17 +4,15 @@ name: Release
 # provenance, and publish a GitHub Release with the same tarball and SHA-256
 # checksums.
 #
-# npm publishing uses trusted publishing (OIDC): no npm token is stored in the
-# repository. Configure it once on npmjs.com under the citepath package's
-# settings: Trusted publisher -> GitHub Actions, repository arif-js/cite-path,
-# workflow release.yml.
+# npm publishing authenticates with the NPM_TOKEN repository secret (an npm
+# automation or granular token with publish access to citepath).
 on:
   push:
     tags: ['v*']
 
 permissions:
   contents: write # create the GitHub Release
-  id-token: write # npm trusted publishing and provenance
+  id-token: write # npm provenance
 
 jobs:
   release:
@@ -42,10 +40,9 @@ jobs:
           sha256sum citepath-*.tgz > SHA256SUMS
           cat SHA256SUMS
       - name: Publish to npm
-        # Trusted publishing needs npm 11.5.1 or later.
-        run: |
-          npm install -g npm@latest
-          npm publish citepath-*.tgz --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish citepath-*.tgz --provenance --access public
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}

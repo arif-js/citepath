@@ -66,6 +66,7 @@ describe('Sync engine: local sources', () => {
     const first = await sync();
     expect(first.status).toBe('completed');
     expect(first.counts.added).toBe(11);
+    expect(first.warnings).toEqual([]);
     const before = snapshot(db, 'nimbus');
     expect(ftsCount(db)).toBe(passageTotal(db));
 

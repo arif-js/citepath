@@ -17,6 +17,7 @@ import {
 } from '../store/repo.js';
 import { computeContentHash } from '../utils/id.js';
 import { type Logger, silentLogger } from '../utils/logger.js';
+import { versionFolder } from '../utils/versions.js';
 
 /** Removing this many documents or fewer never trips the mass-deletion guard. */
 export const MASS_DELETE_MIN_COUNT = 3;
@@ -218,6 +219,43 @@ function insertPassages(db: DatabaseSync, sourceId: string, doc: DocumentRecord)
   }
 }
 
+const VERSIONED_WARNING = { minDocuments: 3, minShare: 0.25 } as const;
+const LOCATION_PAGE = 1000;
+
+/**
+ * Warns when much of a source sits under old-version folders ("/docs/15/"), which crowd search
+ * results and are often indexed by accident. Reads locations page by page.
+ */
+function versionedWarning(db: DatabaseSync, sourceId: string, total: number): string | undefined {
+  if (total < VERSIONED_WARNING.minDocuments) return undefined;
+  const page = db.prepare(
+    'SELECT location FROM documents WHERE source_id = ? AND location > ? ORDER BY location LIMIT ?'
+  );
+  const folders = new Map<string, number>();
+  let versioned = 0;
+  let after = '';
+  for (;;) {
+    const rows = page.all(sourceId, after, LOCATION_PAGE) as Array<{ location: string }>;
+    for (const { location } of rows) {
+      const folder = versionFolder(location);
+      if (!folder) continue;
+      versioned++;
+      folders.set(folder, (folders.get(folder) ?? 0) + 1);
+    }
+    if (rows.length < LOCATION_PAGE) break;
+    after = rows[rows.length - 1]!.location;
+  }
+  if (versioned < VERSIONED_WARNING.minDocuments || versioned / total < VERSIONED_WARNING.minShare) {
+    return undefined;
+  }
+  const top = [...folders.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 3);
+  const patterns = top.map(([folder]) => `"${folder}**"`).join(', ');
+  return (
+    `${versioned} of ${total} documents are in older documentation versions (${top.map(([f, n]) => `${f}: ${n}`).join(', ')}). ` +
+    `Search shows the current copy of each page, but to leave old versions out of the index add "exclude": [${patterns}] to this source in the config.`
+  );
+}
+
 /**
  * Syncs one source (docs/sync.md):
  * 1. take the per-source lock (recovering stale locks from crashed runs);
@@ -350,6 +388,8 @@ export async function syncSource(
       if (summary.counts.documents_total === 0) {
         summary.warnings.push('the source has no indexed documents');
       }
+      const versions = versionedWarning(db, source.id, summary.counts.documents_total);
+      if (versions) summary.warnings.push(versions);
       const hasProblems =
         summary.counts.failed > 0 || summary.mass_delete_guard.triggered || !summary.discovery_complete;
       finish(hasProblems ? 'completed_with_failures' : 'completed');

@@ -123,4 +123,6 @@ Responses say when anything was shortened (`truncated`, `query_truncated`).
 
 Sites that keep old versions under a version folder (`/docs/15/…`, `/v2/…`, `/1.4/…`, `/latest/…`) produce near-identical copies of the same section. Search returns one copy of each section and uses the current, unversioned copy when it matches. Pages that exist only in an older version still appear. To search one version, filter with `--path-prefix` (for example `https://nextjs.org/docs/15/`); to leave old versions out of the index entirely, add the source with `--include` or `--exclude` (for example `--include '/docs/app/**'`).
 
+When at least a quarter of a source's documents (and at least 3) are in older versions, the sync summary warns and suggests `exclude` patterns for the largest version folders, for example `"exclude": ["/docs/15/**"]`. The warning does not change the sync result.
+
 A path segment counts as a version when it looks like `15`, `v2`, `1.4`, `2.x`, `v3.1.0`, `latest`, `stable`, or `current`. Numbers with three or more digits (`404`, `2024`) are not versions.

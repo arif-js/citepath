@@ -3,9 +3,10 @@ import path from 'node:path';
 import type { DatabaseSync } from 'node:sqlite';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { LoadedConfig } from '../../src/config/load.js';
-import { documentFamily, search } from '../../src/core/retrieval.js';
+import { search } from '../../src/core/retrieval.js';
 import { syncSource } from '../../src/core/sync.js';
 import { openIndex } from '../../src/store/db.js';
+import { documentFamily, versionFolder } from '../../src/utils/versions.js';
 import { makeTempDir, VERSIONED_FIXTURE } from '../helpers.js';
 
 describe('documentFamily', () => {
@@ -30,6 +31,15 @@ describe('documentFamily', () => {
     );
   });
 
+  it('finds the old-version folder of a location', () => {
+    expect(versionFolder('https://example.test/docs/15/app/guide')).toBe('/docs/15/');
+    expect(versionFolder('https://example.test/v2.1/guide')).toBe('/v2.1/');
+    expect(versionFolder('15/guides/caching.md')).toBe('15/');
+    expect(versionFolder('https://example.test/docs/app/guide')).toBeUndefined();
+    expect(versionFolder('https://example.test/docs/latest/guide')).toBeUndefined();
+    expect(versionFolder('https://example.test/errors/404')).toBeUndefined();
+  });
+
   it('keeps pages apart when the differing segment is not a version', () => {
     const key = (location: string) => documentFamily('s', location).key;
     expect(key('https://example.test/errors/404')).not.toBe(key('https://example.test/errors/500'));
@@ -46,6 +56,7 @@ describe('Search across documentation versions', () => {
   let tmp: string;
   let db: DatabaseSync;
   let loaded: LoadedConfig;
+  let warnings: string[];
   const ctx = () => ({ db, loaded });
   const paths = (query: string, extra: { path_prefix?: string; limit?: number } = {}) =>
     search(ctx(), { query, limit: 10, ...extra }).results.map((r) => `${r.path} > ${r.heading_path.at(-1)}`);
@@ -60,12 +71,32 @@ describe('Search across documentation versions', () => {
       dataDir: path.join(tmp, 'data'),
     };
     db = openIndex(loaded.dataDir);
-    await syncSource(db, loaded, loaded.config.sources[0]!);
+    ({ warnings } = await syncSource(db, loaded, loaded.config.sources[0]!));
   });
 
   afterAll(() => {
     db.close();
     fs.rmSync(tmp, { recursive: true, force: true });
+  });
+
+  it('warns after sync when many documents are old versions, and suggests excludes', () => {
+    expect(warnings).toEqual([
+      '3 of 6 documents are in older documentation versions (15/: 2, v14/: 1). Search shows the current ' +
+        'copy of each page, but to leave old versions out of the index add "exclude": ["15/**", "v14/**"] ' +
+        'to this source in the config.',
+    ]);
+  });
+
+  it('drops old versions and the warning once the suggested excludes are added', async () => {
+    const source = {
+      id: 'current-only',
+      type: 'local' as const,
+      path: VERSIONED_FIXTURE,
+      exclude: ['15/**', 'v14/**'],
+    };
+    const summary = await syncSource(db, { ...loaded, config: { sources: [source] } }, source);
+    expect(summary.warnings).toEqual([]);
+    expect(summary.counts.documents_total).toBe(3);
   });
 
   it('returns one copy of each section, preferring the current version', () => {

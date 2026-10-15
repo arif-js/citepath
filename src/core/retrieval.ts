@@ -15,6 +15,7 @@ import {
 } from '../types/index.js';
 import { NotFoundError, UsageError } from '../utils/errors.js';
 import { escapeLike } from '../utils/url.js';
+import { documentFamily } from '../utils/versions.js';
 
 /**
  * The single retrieval implementation behind the CLI, MCP server, and local API.
@@ -59,38 +60,6 @@ interface PassageRow {
 
 const PASSAGE_COLUMNS = `p.id, p.document_id, p.source_id, p.ordinal, p.heading_path_json, p.anchor, p.line_start,
   p.line_end, p.text, p.content_hash, p.occurrence_index, d.title, d.url, d.path, d.updated_at, d.fetched_at, d.commit_sha`;
-
-/**
- * Path segments that name a documentation version: "15", "v2", "1.4", "2.x", "v3.1.0", and the
- * aliases "latest", "stable", "current". Two-digit numbers at most, so "404" and "2024" are not
- * versions.
- */
-const VERSION_SEGMENT = /^(?:v?\d{1,2}(?:\.(?:\d+|x)){0,2}|v\d+(?:\.\d+)*|latest|stable|current)$/i;
-const CURRENT_ALIASES = new Set(['latest', 'stable', 'current']);
-
-/**
- * Identifies the same page across documentation versions: "/docs/15/app/x" and "/docs/app/x" share
- * a key. `versioned` is false for the current copy (no version segment, or "latest"/"stable").
- */
-export function documentFamily(sourceId: string, location: string): { key: string; versioned: boolean } {
-  let origin = '';
-  let pathname = location;
-  try {
-    const url = new URL(location);
-    origin = url.origin;
-    pathname = url.pathname;
-  } catch {
-    // A local path relative to the source root.
-  }
-  let versioned = false;
-  const segments = pathname.split('/').filter((segment) => {
-    if (!segment) return false;
-    if (!VERSION_SEGMENT.test(segment)) return true;
-    if (!CURRENT_ALIASES.has(segment.toLowerCase())) versioned = true;
-    return false;
-  });
-  return { key: JSON.stringify([sourceId, origin, segments.join('/')]), versioned };
-}
 
 function configuredSources(loaded: LoadedConfig): Map<string, SourceConfig> {
   return new Map(loaded.config.sources.map((s) => [s.id, s]));

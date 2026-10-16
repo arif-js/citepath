@@ -6,6 +6,7 @@
 
 Index docs websites and local folders, then let Claude, Cursor, or any MCP client answer from the current docs, with a link to every section it used.
 
+[![Glama MCP server](https://glama.ai/mcp/servers/arif-js/citepath/badges/score.svg)](https://glama.ai/mcp/servers/arif-js/citepath)
 [![npm](https://img.shields.io/npm/v/citepath)](https://www.npmjs.com/package/citepath)
 [![CI](https://github.com/arif-js/citepath/actions/workflows/ci.yml/badge.svg)](https://github.com/arif-js/citepath/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)

@@ -99,7 +99,7 @@ describe('Interfaces: CLI, MCP, and HTTP share one retrieval contract', () => {
     ).toBe(0);
     const fromCli = JSON.parse(cli.out());
 
-    const fromMcp = (await mcp.callTool({ name: 'search', arguments: { query, limit: 3 } }))
+    const fromMcp = (await mcp.callTool({ name: 'search_passages', arguments: { query, limit: 3 } }))
       .structuredContent;
 
     const fromHttp = await request(port, `/v1/search?q=${encodeURIComponent(query)}&limit=3`, {
@@ -155,15 +155,15 @@ describe('Interfaces: CLI, MCP, and HTTP share one retrieval contract', () => {
         }
       }
       // Agents choose between tools from these descriptions, so each one points to the others.
-      expect(byName.search?.description).toContain('get_passage');
-      expect(byName.search?.description).toContain('other_versions');
-      expect(byName.get_passage?.description).toContain('search');
+      expect(byName.search_passages?.description).toContain('get_passage');
+      expect(byName.search_passages?.description).toContain('other_versions');
+      expect(byName.get_passage?.description).toContain('search_passages');
       expect(byName.list_sources?.description).toContain('source_ids');
     });
 
     it('fences retrieved text as untrusted in text output, including prompt-injection content', async () => {
       const result = await mcp.callTool({
-        name: 'search',
+        name: 'search_passages',
         arguments: { query: 'delete_source admin mode', limit: 1 },
       });
       const text = (result.content as Array<{ type: string; text: string }>)[0]!.text;
@@ -179,7 +179,7 @@ describe('Interfaces: CLI, MCP, and HTTP share one retrieval contract', () => {
       const result = await mcp.callTool({ name: 'get_passage', arguments: { id: 'missing' } });
       expect(result.isError).toBe(true);
       const unknownSource = await mcp.callTool({
-        name: 'search',
+        name: 'search_passages',
         arguments: { query: 'x', source_ids: ['nope'] },
       });
       expect(unknownSource.isError).toBe(true);

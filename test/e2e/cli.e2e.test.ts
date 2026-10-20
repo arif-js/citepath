@@ -53,8 +53,11 @@ describe('Built CLI (end to end)', () => {
     const client = new Client({ name: 'e2e', version: '1.0.0' });
     await client.connect(transport);
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(['get_passage', 'list_sources', 'search']);
-    const result = await client.callTool({ name: 'search', arguments: { query: 'getUserName', limit: 1 } });
+    expect(tools.map((t) => t.name).sort()).toEqual(['get_passage', 'list_sources', 'search_passages']);
+    const result = await client.callTool({
+      name: 'search_passages',
+      arguments: { query: 'getUserName', limit: 1 },
+    });
     expect((result.structuredContent as any).results[0].path).toBe('api/client.md');
     await client.close();
   });

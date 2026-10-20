@@ -24,4 +24,10 @@ describe('Version', () => {
       expect.objectContaining({ registryType: 'npm', identifier: pkg.name, version: pkg.version }),
     ]);
   });
+
+  it('has a valid glama.json file', () => {
+    const glama = readJson('glama.json');
+    expect(glama.$schema).toBe('https://glama.ai/mcp/schemas/server.json');
+    expect(glama.maintainers).toContain('arif-js');
+  });
 });

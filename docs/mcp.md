@@ -8,7 +8,7 @@ All tools are read-only. Adding, syncing, and removing sources is only possible 
 
 | Tool | Arguments | Returns |
 | --- | --- | --- |
-| `search` | `query` (required), `limit` (1-25), `source_ids`, `path_prefix` | Ranked passages with `citation_url`, title, heading path, and text, plus `other_versions` (older doc versions that also matched) |
+| `search_passages` | `query` (required), `limit` (1-25), `source_ids`, `path_prefix` | Ranked passages with `citation_url`, title, heading path, and text, plus `other_versions` (older doc versions that also matched) |
 | `get_passage` | `id` (required), `neighbors` (0-3) | The full passage plus surrounding passages |
 | `list_sources` | none | Configured sources, document counts, last sync status |
 
@@ -73,4 +73,4 @@ The server re-reads the config on every request, so sources you add later are pi
 - Ask the assistant to cite `citation_url` for every claim.
 - Natural-language questions and exact identifiers both work: `how do I rotate API keys`, `getUserName`, `--dry-run`, `ERR_INVALID_TOKEN`.
 - Use `get_passage` with `neighbors` when a result is cut off or needs surrounding context.
-- Search prefers the current docs version. To ask about an older one ("in Next.js 15…"), the assistant can pass a `path_prefix` from `other_versions`.
+- `search_passages` prefers the current docs version. To ask about an older one ("in Next.js 15…"), the assistant can pass a `path_prefix` from `other_versions`.

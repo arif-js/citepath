@@ -1,6 +1,6 @@
 {
   "name": "citepath",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "mcpName": "io.github.arif-js/citepath",
   "description": "Self-hosted search over your documentation, with citations, for AI assistants and apps",
   "keywords": [
